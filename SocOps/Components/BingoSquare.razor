@@ -5,11 +5,11 @@
     disabled="@Square.IsFreeSpace"
     class="@GetCssClasses()"
     aria-pressed="@Square.IsMarked"
-    aria-label="@(Square.IsFreeSpace ? "Free space" : Square.Text)">
-    <span class="wrap-break-word hyphens-auto">@Square.Text</span>
-    @if (Square.IsMarked && !Square.IsFreeSpace)
+    aria-label="@GetAriaLabel()">
+    <span class="bingo-square__label">@(Square.IsFreeSpace ? "フリースペース" : Square.Text)</span>
+    @if (Square.IsMarked)
     {
-        <span class="absolute top-0.5 right-0.5 text-green-600 text-xs">✓</span>
+        <span class="bingo-square__check" aria-hidden="true">✓</span>
     }
 </button>
 
@@ -25,16 +25,33 @@
 
     private string GetCssClasses()
     {
-        var baseClasses = "relative flex items-center justify-center p-1 text-center border border-gray-300 rounded transition-all duration-150 select-none min-h-[60px] text-xs leading-tight";
+        if (Square.IsFreeSpace)
+        {
+            return "bingo-square bingo-square--free";
+        }
 
-        var stateClasses = Square.IsMarked
-            ? IsWinning
-                ? "bg-amber-200 border-amber-400 text-amber-900"
-                : "bg-marked border-marked-border text-green-800"
-            : "bg-white text-gray-700 active:bg-gray-100";
+        if (IsWinning)
+        {
+            return "bingo-square bingo-square--winning";
+        }
 
-        var freeSpaceClasses = Square.IsFreeSpace ? "font-bold text-sm" : "";
+        return Square.IsMarked ? "bingo-square bingo-square--marked" : "bingo-square";
+    }
 
-        return $"{baseClasses} {stateClasses} {freeSpaceClasses}";
+    private string GetAriaLabel()
+    {
+        var label = Square.IsFreeSpace ? "フリースペース" : Square.Text;
+
+        if (Square.IsMarked)
+        {
+            label += "、選択済み";
+        }
+
+        if (IsWinning)
+        {
+            label += "、ビンゴライン";
+        }
+
+        return label;
     }
 }
